@@ -24,8 +24,11 @@ app.use(cors());
 app.use(notesRouter);
 
 app.use(notFoundHandler);
-app.use(errorHandler);
+
 app.use(errors());
+
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

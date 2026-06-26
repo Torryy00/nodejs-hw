@@ -17,7 +17,7 @@ export const getAllNotesSchema = Joi.object({
 });
 
 export const noteIdSchema = Joi.object({
-  noteId: Joi.string().custom(isValidObjectId),
+  noteId: Joi.string().custom(isValidObjectId).required(), // 👈 ВОТ ИСПРАВЛЕНИЕ
 });
 
 export const createNoteSchema = Joi.object({
