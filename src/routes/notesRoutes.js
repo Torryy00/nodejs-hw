@@ -14,42 +14,40 @@ import {
 import {
   createNoteSchema,
   updateNoteSchema,
-  idSchema,
+  noteIdSchema,
 } from '../validations/notesValidation.js';
 
 const notesRouter = Router();
 
-// ❗ ВАЖНО: защита ВСЕХ routes
 notesRouter.use(authenticate);
 
-// GET all notes
 notesRouter.get('/', getAllNotes);
 
-// GET note by id
-notesRouter.get('/:id', celebrate({ params: idSchema }), getNoteById);
+notesRouter.get(
+  '/:noteId',
+  celebrate({ params: noteIdSchema }),
+  getNoteById,
+);
 
-// CREATE note
 notesRouter.post(
   '/',
   celebrate({ body: createNoteSchema }),
-  createNote
+  createNote,
 );
 
-// UPDATE note
 notesRouter.patch(
-  '/:id',
+  '/:noteId',
   celebrate({
-    params: idSchema,
+    params: noteIdSchema,
     body: updateNoteSchema,
   }),
-  updateNote
+  updateNote,
 );
 
-// DELETE note
 notesRouter.delete(
-  '/:id',
-  celebrate({ params: idSchema }),
-  deleteNote
+  '/:noteId',
+  celebrate({ params: noteIdSchema }),
+  deleteNote,
 );
 
 export default notesRouter;
