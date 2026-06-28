@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { celebrate, Joi, Segments } from 'celebrate';
+import { celebrate } from 'celebrate';
+
+import {
+  registerUserSchema,
+  loginUserSchema,
+} from '../validations/authValidation.js';
 
 import {
   registerUser,
@@ -13,31 +18,21 @@ const router = Router();
 // REGISTER
 router.post(
   '/register',
-  celebrate({
-    [Segments.BODY]: Joi.object({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(8).required(),
-    }),
-  }),
+  celebrate({ body: registerUserSchema }),
   registerUser
 );
 
 // LOGIN
 router.post(
   '/login',
-  celebrate({
-    [Segments.BODY]: Joi.object({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    }),
-  }),
+  celebrate({ body: loginUserSchema }),
   loginUser
 );
 
-// REFRESH (без body)
+// REFRESH
 router.post('/refresh', refreshUserSession);
 
-// LOGOUT (без body)
+// LOGOUT
 router.post('/logout', logoutUser);
 
 export default router;

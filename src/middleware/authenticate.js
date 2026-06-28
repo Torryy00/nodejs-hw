@@ -1,31 +1,30 @@
 import createHttpError from 'http-errors';
-import jwt from 'jsonwebtoken';
-
 import { Session } from '../models/session.js';
 import { User } from '../models/user.js';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 export const authenticate = async (req, res, next) => {
   try {
-    const { accessToken } = req.cookies;
+    const { accessToken, sessionId } = req.cookies;
 
     if (!accessToken) {
       throw createHttpError(401, 'Missing access token');
     }
 
-    let session;
-
-    try {
-      jwt.verify(accessToken, JWT_SECRET);
-    } catch {
-      throw createHttpError(401, 'Access token expired');
+    if (!sessionId) {
+      throw createHttpError(401, 'Session not found');
     }
 
-    session = await Session.findOne({ accessToken });
+    const session = await Session.findOne({
+      _id: sessionId,
+      accessToken,
+    });
 
     if (!session) {
       throw createHttpError(401, 'Session not found');
+    }
+
+    if (session.accessTokenValidUntil < new Date()) {
+      throw createHttpError(401, 'Access token expired');
     }
 
     const user = await User.findById(session.userId);
