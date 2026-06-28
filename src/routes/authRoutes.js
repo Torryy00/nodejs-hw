@@ -2,37 +2,53 @@ import { Router } from 'express';
 import { celebrate } from 'celebrate';
 
 import {
-  registerUserSchema,
-  loginUserSchema,
-} from '../validations/authValidation.js';
-
-import {
   registerUser,
   loginUser,
-  refreshUserSession,
   logoutUser,
+  refreshUserSession,
+  requestResetEmail,
+  resetPassword,
 } from '../controllers/authController.js';
+
+import {
+  registerUserSchema,
+  loginUserSchema,
+  requestResetEmailSchema,
+  resetPasswordSchema,
+} from '../validations/authValidation.js';
+
+import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
-// REGISTER
+// 🔐 AUTH
 router.post(
   '/register',
   celebrate({ body: registerUserSchema }),
-  registerUser
+  registerUser,
 );
 
-// LOGIN
 router.post(
   '/login',
   celebrate({ body: loginUserSchema }),
-  loginUser
+  loginUser,
 );
 
-// REFRESH
-router.post('/refresh', refreshUserSession);
+router.post('/logout', authenticate, logoutUser);
 
-// LOGOUT
-router.post('/logout', logoutUser);
+router.post('/refresh', authenticate, refreshUserSession);
+
+// 📧 RESET PASSWORD FLOW
+router.post(
+  '/request-reset-email',
+  celebrate({ body: requestResetEmailSchema }),
+  requestResetEmail,
+);
+
+router.post(
+  '/reset-password',
+  celebrate({ body: resetPasswordSchema }),
+  resetPassword,
+);
 
 export default router;
