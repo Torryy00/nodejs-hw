@@ -1,33 +1,64 @@
-import Joi from 'joi';
-import mongoose from 'mongoose';
-import { TAGS } from '../constants/tags.js';
+import { Router } from 'express';
+import { celebrate } from 'celebrate';
 
-const isValidObjectId = (value, helpers) => {
-  if (!mongoose.isValidObjectId(value)) {
-    return helpers.error('any.invalid');
-  }
-  return value;
-};
+import { authenticate } from '../middleware/authenticate.js';
 
-export const getAllNotesSchema = Joi.object({
-  page: Joi.number().integer().min(1).default(1),
-  perPage: Joi.number().integer().min(5).max(20).default(10),
-  tag: Joi.string().valid(...TAGS),
-  search: Joi.string().allow('').optional(),
-});
+import {
+  getAllNotes,
+  getNoteById,
+  createNote,
+  updateNote,
+  deleteNote,
+} from '../controllers/notesController.js';
 
-export const noteIdSchema = Joi.object({
-  noteId: Joi.string().custom(isValidObjectId).required(), // 👈 ВОТ ИСПРАВЛЕНИЕ
-});
+import {
+  createNoteSchema,
+  updateNoteSchema,
+  noteIdSchema,
+  getAllNotesSchema,
+} from '../validations/notesValidation.js';
 
-export const createNoteSchema = Joi.object({
-  title: Joi.string().min(1).required(),
-  content: Joi.string().allow('').optional(),
-  tag: Joi.string().valid(...TAGS).optional(),
-});
+const notesRouter = Router();
 
-export const updateNoteSchema = Joi.object({
-  title: Joi.string().min(1),
-  content: Joi.string().allow(''),
-  tag: Joi.string().valid(...TAGS),
-}).or('title', 'content', 'tag');
+// все роуты защищены
+notesRouter.use(authenticate);
+
+// GET all notes (ВАЖНО: query validation)
+notesRouter.get(
+  '/',
+  celebrate({ query: getAllNotesSchema }),
+  getAllNotes,
+);
+
+// GET note by id
+notesRouter.get(
+  '/:noteId',
+  celebrate({ params: noteIdSchema }),
+  getNoteById,
+);
+
+// CREATE note
+notesRouter.post(
+  '/',
+  celebrate({ body: createNoteSchema }),
+  createNote,
+);
+
+// UPDATE note
+notesRouter.patch(
+  '/:noteId',
+  celebrate({
+    params: noteIdSchema,
+    body: updateNoteSchema,
+  }),
+  updateNote,
+);
+
+// DELETE note
+notesRouter.delete(
+  '/:noteId',
+  celebrate({ params: noteIdSchema }),
+  deleteNote,
+);
+
+export default notesRouter;

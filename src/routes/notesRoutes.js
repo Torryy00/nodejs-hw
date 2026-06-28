@@ -15,26 +15,36 @@ import {
   createNoteSchema,
   updateNoteSchema,
   noteIdSchema,
+  getAllNotesSchema,
 } from '../validations/notesValidation.js';
 
 const notesRouter = Router();
 
+// защищаем все роуты
 notesRouter.use(authenticate);
 
-notesRouter.get('/', getAllNotes);
+// GET all notes (❗ ВАЖНО: добавили celebrate)
+notesRouter.get(
+  '/',
+  celebrate(getAllNotesSchema),
+  getAllNotes,
+);
 
+// GET note by id
 notesRouter.get(
   '/:noteId',
   celebrate({ params: noteIdSchema }),
   getNoteById,
 );
 
+// CREATE note
 notesRouter.post(
   '/',
   celebrate({ body: createNoteSchema }),
   createNote,
 );
 
+// UPDATE note
 notesRouter.patch(
   '/:noteId',
   celebrate({
@@ -44,6 +54,7 @@ notesRouter.patch(
   updateNote,
 );
 
+// DELETE note
 notesRouter.delete(
   '/:noteId',
   celebrate({ params: noteIdSchema }),

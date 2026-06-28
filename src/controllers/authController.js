@@ -116,10 +116,8 @@ export const refreshUserSession = async (req, res, next) => {
       res.clearCookie('refreshToken');
       res.clearCookie('sessionId');
 
-      return res.status(401).json({
-        message: 'Session token expired',
-      });
-    }
+      return next(createHttpError(401, 'Session token expired'));
+    } // 👈 ВОТ ЭТО ОБЯЗАТЕЛЬНО
 
     const userId = session.userId;
 
