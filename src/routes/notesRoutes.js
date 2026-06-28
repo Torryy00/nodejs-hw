@@ -20,13 +20,12 @@ import {
 
 const notesRouter = Router();
 
-// защищаем все роуты
 notesRouter.use(authenticate);
 
-// GET all notes (❗ ВАЖНО: добавили celebrate)
+// GET all notes (query validation)
 notesRouter.get(
   '/',
-  celebrate(getAllNotesSchema),
+  celebrate({ query: getAllNotesSchema }),
   getAllNotes,
 );
 
