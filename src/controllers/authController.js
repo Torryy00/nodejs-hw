@@ -13,6 +13,7 @@ export const registerUser = async (req, res, next) => {
 
     const existingUser = await User.findOne({ email });
 
+    // ❗ FIX: должно быть 400, а не 409
     if (existingUser) {
       return next(createHttpError(400, 'Email in use'));
     }
@@ -55,7 +56,7 @@ export const loginUser = async (req, res, next) => {
       return next(createHttpError(401, 'Email or password is wrong'));
     }
 
-    // ❗ ВАЖНО: удалить старые сессии
+    // ❗ FIX: удалить старые сессии (обязательно по ревью)
     await Session.deleteMany({ userId: user._id });
 
     const session = await createSession(user._id);

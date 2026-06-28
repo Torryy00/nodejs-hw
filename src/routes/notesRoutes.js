@@ -1,35 +1,55 @@
 import { Router } from 'express';
 import { celebrate } from 'celebrate';
 
+import authenticate from '../middlewares/authenticate.js';
+
 import {
   getAllNotes,
   getNoteById,
   createNote,
-  deleteNote,
   updateNote,
+  deleteNote,
 } from '../controllers/notesController.js';
 
 import {
-  getAllNotesSchema,
-  noteIdSchema,
   createNoteSchema,
   updateNoteSchema,
-} from '../validations/notesValidation.js';
+  idSchema,
+} from '../validation/notesSchemas.js';
 
 const notesRouter = Router();
 
-notesRouter.get('/notes', celebrate({ query: getAllNotesSchema }), getAllNotes);
+// ❗ ВАЖНО: защита ВСЕХ routes
+notesRouter.use(authenticate);
 
-notesRouter.get('/notes/:noteId', celebrate({ params: noteIdSchema }), getNoteById);
+// GET all notes
+notesRouter.get('/', getAllNotes);
 
-notesRouter.post('/notes', celebrate({ body: createNoteSchema }), createNote);
+// GET note by id
+notesRouter.get('/:id', celebrate({ params: idSchema }), getNoteById);
 
-notesRouter.delete('/notes/:noteId', celebrate({ params: noteIdSchema }), deleteNote);
+// CREATE note
+notesRouter.post(
+  '/',
+  celebrate({ body: createNoteSchema }),
+  createNote
+);
 
+// UPDATE note
 notesRouter.patch(
-  '/notes/:noteId',
-  celebrate({ params: noteIdSchema, body: updateNoteSchema }),
-  updateNote,
+  '/:id',
+  celebrate({
+    params: idSchema,
+    body: updateNoteSchema,
+  }),
+  updateNote
+);
+
+// DELETE note
+notesRouter.delete(
+  '/:id',
+  celebrate({ params: idSchema }),
+  deleteNote
 );
 
 export default notesRouter;
