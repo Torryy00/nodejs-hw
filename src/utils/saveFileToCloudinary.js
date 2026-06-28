@@ -13,6 +13,8 @@ export const saveFileToCloudinary = (buffer, userId) => {
         folder: 'avatars',
         public_id: userId,
         overwrite: true,
+        resource_type: 'image',     // ✅ ДОБАВИЛИ
+        unique_filename: true,      // ✅ ДОБАВИЛИ
       },
       (error, result) => {
         if (error) return reject(error);

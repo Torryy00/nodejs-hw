@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { celebrate } from 'celebrate';
 
+
 import {
   registerUser,
   loginUser,
@@ -17,38 +18,40 @@ import {
   resetPasswordSchema,
 } from '../validations/authValidation.js';
 
-import { authenticate } from '../middleware/authenticate.js';
+const authRouter = Router();
 
-const router = Router();
-
-// 🔐 AUTH
-router.post(
+// REGISTER
+authRouter.post(
   '/register',
   celebrate({ body: registerUserSchema }),
   registerUser,
 );
 
-router.post(
+// LOGIN
+authRouter.post(
   '/login',
   celebrate({ body: loginUserSchema }),
   loginUser,
 );
 
-router.post('/logout', authenticate, logoutUser);
+// ❗ logout БЕЗ authenticate
+authRouter.post('/logout', logoutUser);
 
-router.post('/refresh', authenticate, refreshUserSession);
+// ❗ refresh БЕЗ authenticate
+authRouter.post('/refresh', refreshUserSession);
 
-// 📧 RESET PASSWORD FLOW
-router.post(
+// REQUEST RESET EMAIL
+authRouter.post(
   '/request-reset-email',
   celebrate({ body: requestResetEmailSchema }),
   requestResetEmail,
 );
 
-router.post(
+// RESET PASSWORD
+authRouter.post(
   '/reset-password',
   celebrate({ body: resetPasswordSchema }),
   resetPassword,
 );
 
-export default router;
+export default authRouter;

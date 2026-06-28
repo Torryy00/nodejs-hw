@@ -12,6 +12,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 import notesRouter from './routes/notesRoutes.js';
 import authRouter from './routes/authRoutes.js';
+import userRouter from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -24,8 +25,10 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 
-app.use('/auth', authRouter);
-app.use('/notes', notesRouter);
+// ❗ БЕЗ ПРЕФИКСОВ
+app.use(authRouter);
+app.use(notesRouter);
+app.use(userRouter);
 
 // errors
 app.use(notFoundHandler);
