@@ -5,7 +5,7 @@ import { Session } from '../models/session.js';
 
 import { createSession, setSessionCookies } from '../services/auth.js';
 
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -14,7 +14,7 @@ export const registerUser = async (req, res, next) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return next(createHttpError(409, 'Email in use'));
+      return next(createHttpError(400, 'Email in use'));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -54,6 +54,9 @@ export const loginUser = async (req, res, next) => {
     if (!isMatch) {
       return next(createHttpError(401, 'Email or password is wrong'));
     }
+
+    // ❗ ВАЖНО: удалить старые сессии
+    await Session.deleteMany({ userId: user._id });
 
     const session = await createSession(user._id);
 
@@ -112,7 +115,9 @@ export const refreshUserSession = async (req, res, next) => {
       res.clearCookie('refreshToken');
       res.clearCookie('sessionId');
 
-      return next(createHttpError(401, 'Session token expired'));
+      return res.status(401).json({
+        message: 'Session token expired',
+      });
     }
 
     const userId = session.userId;
